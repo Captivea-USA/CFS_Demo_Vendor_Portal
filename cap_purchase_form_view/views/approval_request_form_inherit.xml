@@ -1,0 +1,134 @@
+<odoo>
+    <data>
+        <record id="cap_approval_requiest_view_form_inherit" model="ir.ui.view">
+            <field name="name">approval.request.view.form</field>
+            <field name="model">approval.request</field>
+            <field name="inherit_id" ref="approvals.approval_request_view_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Removes un-needed fields -->
+                <!-- <xpath expr="//field[@name='category_id']" position="replace"/> -->
+                <xpath expr="//field[@name='date_confirmed']" position="replace"/>
+                <xpath expr="//field[@name='date']" position="replace"/>
+                <xpath expr="//field[@name='date_start']" position="replace"/>
+                <xpath expr="//field[@name='date_end']" position="replace"/>
+                <!-- <xpath expr="//field[@name='location']" position="replace"/> -->
+                <xpath expr="//field[@name='partner_id']" position="replace"/>
+                <xpath expr="//field[@name='amount']" position="replace"/>
+                <xpath expr="//field[@name='reference']" position="replace"/>
+                <xpath expr="//field[@name='quantity']" position="replace"/>
+                <xpath expr="//field[@name='category_image']" position="replace"/>
+
+
+                <xpath expr="//label[@for='date']" position="replace"/>
+                <xpath expr="//label[@for='date_start']" position="replace"/>
+
+                <!-- Takes out both <span> tags -->
+                <xpath expr="//span[1]" position="replace"/>
+                <xpath expr="//span[1]" position="replace"/>
+
+                <!-- EOI-332: Make request_owner_id required -->
+                <xpath expr="//field[@name='request_owner_id']" position="attributes">
+                    <attribute name="attrs">{'required':True}</attribute>
+                </xpath>
+
+                <!-- Adding Type Selection after Request Owner -->
+                <xpath expr="//field[@name='request_owner_id']" position="after">
+                    <field name="cap_type" widget="radio" options="{'horizontal':true}"/>
+                    <field name="cap_ship_to" widget="radio" options="{'horizontal':true}"/>
+                    
+                    <!-- Shows only when certain cap_ship_to type is selected -->
+                    <field name="cap_warehouse"  attrs="{'invisible': [('cap_ship_to', '!=', 'cfs')], 'required':[('cap_ship_to','=','cfs')]}" />
+                    <field name="cap_remote_warehouse"  attrs="{'invisible': [('cap_ship_to', '!=', 'external')], 'required':[('cap_ship_to','=','external')]}"/>
+                    <field name="cap_address" attrs="{'invisible': [('cap_ship_to', '!=', 'request_new_address')], 'required':[('cap_ship_to','=','request_new_address')]}"
+                        placeholder="eg:100 Main Street, SpringField MA, 12345" modifiers="{'required':['cap_ship_to','=','request_new_address']}"/>
+                </xpath>
+
+                <!-- EOI-332: Previous PO Field dynamic invisibility -->
+                <xpath expr="//field[@name='cap_type']" position="after">
+                    <field name="purchase_order" placeholder="eg: PO12345" id="purchase_order" attrs="{'invisible': [('cap_type', '!=', 'change_order')], 'required':[('cap_type', '=', 'change_order')]}"/>
+                </xpath>
+
+                <!-- EOI-332: Prior to Approval Ribbon -->
+                <xpath expr="//sheet" position="before">
+                    <div class="alert alert-warning"
+                         role="alert" 
+                         style="margin-bottom:0px;"
+                         attrs="{'invisible': [('request_status','!=', 'new')]}">
+                        <span>This Request has not been submitted.</span>
+                    </div>
+                </xpath>
+
+                <xpath expr="//group[@name='request_main']" position="after">
+                    <group>
+                        <field name="cap_need_date" required="True"/>
+                        <field name="cap_request_notes" placeholder="Information you want the Buyer(s) to know."/>
+                    </group>
+                </xpath>
+
+                <xpath expr="//field[@name='category_id']" position="replace">
+                    <field name="category_id" invisible="1" force_save="1" on_change="1" can_create="true" can_write="true" id="category_id"/>
+                </xpath>
+
+                <!-- Bring back Approver's Page For Debug mode only-->
+                <xpath expr="//notebook/page[@name='approvers']" position="attributes">
+                    <attribute name='groups'>base.group_no_one</attribute>
+				</xpath>
+
+				<!-- EOI-464: Adding Budget tab for PO to pull information from -->
+				<xpath expr="//page[@name='products']" position="before">
+					<page name="budget" string="Budget">
+						<group>
+							<field name="budget_id" required="True"/>
+							<field name="requester_id" required="True"/>
+						</group>
+					</page>
+				</xpath>
+
+                <!-- EOI - 474- Redifine tree view so that this view can stay mass editable but the menu item not. -->
+                <xpath expr="//field[@name='product_line_ids']" position="inside">
+                    <tree string="Products" editable="bottom">
+                    <field name="company_id" invisible="1"/>
+                    <field name="product_filter_ids" invisible="1"/>
+                    <field name="approval_request_id" invisible="context.get('hide_approval_request_id', False)" readonly="1"/>
+                    <field name="requester_id" optional="hide"/>
+                    <field name="buyer_id" optional="hide"/>
+                    <field name="cap_need_date" optional="show"/>
+                    <field name="is_hazardous" readonly="True" string=""/>
+                    <field name="product_id" string="CFS Part" required="True" options="{'no_create': True}" domain="[('id','in',product_filter_ids)]"/>
+                    <field name="cap_product_name" attrs="{'readonly': 1}"/>
+                    <field name="cap_vendor_name" string="Vendor" optional="show"/>
+                    <field name="cap_new_vendor_address" attrs="{'readonly': 1}"/>
+                    <field name="cap_vendor_part" optional="show"/>
+                    <field name="procurement_type" invisible="1" />
+                    <field name="buyer_category_id" domain="[('parent_category','!=',False)]"
+                       options="{'no_create': True, 'no_create_edit':True, 'no_open': True}"
+                       attrs="{'required':[('procurement_type','=','indirect')]}"
+                       placeholder="(indirect only)" optional="show" />
+                    <field name="description" optional="hide"/>
+                    <field name="warehouse_id" groups="stock.group_stock_multi_warehouses" options="{'no_create_edit': True, 'no_open': True}" attrs="{'column_invisible': [('parent.has_location', '=', 'no')],                             'required': [('parent.has_location', '=', 'required')]}"/>
+                    <field name="quality_codes" optional="hide"/>
+                    <field name="quantity" optional="show" sum="Quantity" modifiers="{}"/>
+                    <field name="product_uom_id" groups="uom.group_uom" options="{'no_create': True, 'no_open': True}" string="UoM"/>
+                    <field name="cap_price"/>
+                    <field name="cap_subtotal" optional="show" sum="Subtotal" modifiers="{}"/>
+                    <field name="product_uom_category_id" invisible="1"/>
+                    </tree>
+                </xpath>
+
+                <!-- EOI-332: Add Expand button to open list view -->
+                <!-- EOI-341: Using python function instead of xml Window Action -->
+                <xpath expr="//field[@name='product_line_ids']" position="after">
+                    <button name="open_ap_lines" 
+                            type="object" 
+                            class="btn btn-link" 
+                            icon="fa-expand"
+                            string=" Expand"/>
+                </xpath>
+
+            </field>
+            
+        </record>
+        
+    </data>
+</odoo>

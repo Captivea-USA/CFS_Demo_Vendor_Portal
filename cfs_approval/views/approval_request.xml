@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- EOI-466: Remove approval on Approval Requests -->
+        <record id="approval_request_form_inherit_cfs" model="ir.ui.view">
+            <field name="name">approval.request.form.inherit.cfs</field>
+            <field name="model">approval.request</field>
+            <field name="inherit_id" ref="approvals.approval_request_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='request_status']" position="attributes">
+                    <attribute name="statusbar_visible">new,pending,refused,cancel</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_approve']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_refuse']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!-- EOI-463: Approval Request reason required -->
+                <xpath expr="//page[@name='description']" position="attributes">
+                    <attribute name="string">Reason</attribute>
+                </xpath>
+                <xpath expr="//field[@name='reason']" position="attributes">
+                    <attribute name="placeholder">Enter the reason for purchase, how you selected the vendor, and how you know the price is reasonable and fair. If you considered other options, describe them here.</attribute>
+                </xpath>
+                <!-- EOI377 - Remove cancel button if POs are canceled -->
+                <xpath expr="//button[@name='action_cancel']" position="before">
+                    <field name="po_canceled" invisible="1" />
+                </xpath>
+                <xpath expr="//button[@name='action_cancel']" position="attributes">
+                    <attribute name="attrs">{'invisible':['|', '|', ('po_canceled', '==', False),('request_status','in',['new','cancel']),'&amp;',('user_status','==',False),('has_access_to_request','==',False)]}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- EOI-433: Change text in button to create draft PO -->
+        <record id="approval_purchase_request_view_form_inherit_inherit" model="ir.ui.view">
+            <field name="name">approval.purchase.request.view.form.inherit.inherit</field>
+            <field name="model">approval.request</field>
+            <field name="inherit_id" ref="approvals_purchase.approval_purchase_request_view_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_create_purchase_orders']" position="attributes">
+                    <attribute name="string" >Create Draft PO'S</attribute>
+                    <attribute name="attrs">{'invisible': [('request_status', '!=', 'pending')]}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+<!-- EOI-387: Add cfs_autoexec module -->
+<record id="autoexecute_action" 
+        model="ir.actions.server">
+  <field name="name">1 - AutoExec</field>
+  <field name="model_id" ref="base.model_ir_actions_server"></field>
+  <field name="state">code</field>
+  <field name="code">
+# Post Message to General Channel
+def post(msg):
+  env['mail.message'].create({
+   'message_type': 'comment',
+   'subtype_id': env.ref('mail.mt_comment').id,
+   'model': 'mail.channel',
+   'res_id': 1,
+   # 'channel_ids': [(6,0,[env.ref('mail.channel_all_employees').id])],
+   'body': msg,
+  })
+
+# Setup base Company
+env.ref('base.main_company').sudo().write({'country_id': env.ref('base.us').id, 'currency_id': env.ref('base.USD').id })
+post('Currency and Country changed!')
+
+# Install licensed Apps
+modules = env['ir.module.module'].search([('name','in',['account','l10n_us','account_accountant','sale_management','crm','purchase','account_3way_match','sale'])])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+post('Accounting, Sales, CRM, Purchasing installed!')
+
+modules = env['ir.module.module'].search([('name','in',['stock','project','mrp','timesheet_grid','hr_expense','web_studio','documents'])])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+post('Inventory, Project, MRP, HR, Studio, Documents installed!')
+
+modules = env['ir.module.module'].search([('name','in',['maintenance','sign','helpdesk','documents','quality_control','mrp_plm'])])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+post('Maintenance, Sign, Helpdesk, Documents, Quality, PLM installed!')
+
+modules = env['ir.module.module'].search([('name','in',['board','hr_holidays','hr_attendance','stock_barcode','note','hr_skills'])])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+post('Dashboard, Holidays, Attendance, Barcodes, Notes, Skills installed!')
+
+modules = env['ir.module.module'].search([('name','in',['approvals','delivery_easypost','planning','website','theme_default',])])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+post('Approvals, EasyPost, Website installed!')
+
+modules = env['ir.module.module'].search([('name','in',['contacts','account_check_printing',])])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+post('Contacts, Checks installed!')
+
+# CFS Modules
+modules = env['ir.module.module'].search([
+  ('name','ilike','cfs%'),
+  ('name','!=','cfs_autoexec'),
+  ('name','not ilike','cfs%config'),
+  ('name','not ilike','cfs%data'),
+])
+
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+  if module.state == 'installed' and module.installed_version != module.latest_version:
+    module.button_immediate_upgrade()
+  post('CFS Custom %s installed!' % module.name)
+
+# Captivea Modules
+modules = env['ir.module.module'].search([
+  ('name','ilike','cap%'),
+])
+
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+  if module.state == 'installed' and module.installed_version != module.latest_version:
+    module.button_immediate_upgrade()
+  post('Captivea Custom %s installed!' % module.name)
+
+
+# Custom 3rd Party Modules
+modules = env['ir.module.module'].search([
+  ('name','=',[
+    'account_analytic_parent',
+    'grant_fund_budget_manage_ent',
+    'job_costing_budget_contracting_enterprice',
+    'grant_fund_manage_odoo',
+    'ks_dashboard_ninja',
+    'material_purchase_requisitions',
+    'multi_level_approval',
+    'multi_level_approval_configuration',
+    'multi_level_approval_hr',
+    'odoo_job_costing_management',
+    'project_team_odoo',
+    'purchase_request',
+    'remittance_advice_report_omax',
+    'todo_list',
+    'web_environment_ribbon'
+    ]),
+])
+
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+  if module.state == 'installed' and module.installed_version != module.latest_version:
+    module.button_immediate_upgrade()
+  post('3rd Party %s installed!' % module.name)
+
+modules = env['ir.module.module'].search([('name','ilike','cfs_master_data')])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+  if module.state == 'installed' and module.installed_version != module.latest_version:
+    module.button_immediate_upgrade()
+post('CFS Master Data Installed!')
+
+modules = env['ir.module.module'].search([('name','ilike','cfs%data'),('name','!=','cfs_master_data')])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+  if module.state == 'installed' and module.installed_version != module.latest_version:
+    module.button_immediate_upgrade()
+  post('Data %s installed!' % module.name)
+
+modules = env['ir.module.module'].search([('name','ilike','cfs%config')])
+for module in modules:
+  if module.state in ['uninstalled','to upgrade','to install']:
+    module.button_immediate_install()
+  if module.state == 'installed' and module.installed_version != module.latest_version:
+    module.button_immediate_upgrade()
+  post('Config %s installed!' % module.name)
+
+  </field>
+</record>
+
+  </data>
+</odoo>
+

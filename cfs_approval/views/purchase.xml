@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Purchase Request Menu -->
+    <menuitem
+        id="requests_menu"
+        name="Requests"
+        parent="purchase.menu_purchase_root"
+        sequence="0"/>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- All Requests Menu Item -->
+    <menuitem
+        id="approvals_request_menu_all_requests_purchase"
+        parent="requests_menu"
+        name="All Requests"
+        action="approval_request_action"
+        sequence="1"/>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- New Request Menu Item -->
+    <menuitem
+        id="approvals_request_menu_new_requests_purchase"
+        parent="requests_menu"
+        name="New Request"
+        action="approvals.approval_category_action_new_request"
+        sequence="0"/>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Requester Lines Category -->
+    <menuitem
+        id="requester_lines_category"
+        name="Requester Lines"
+        parent="requests_menu"
+        sequence="2"/>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Requester Lines Waiting Action -->
+    <record id="purchase_action_request_rl_waiting" model="ir.actions.act_window">
+        <field name="name">Waiting Request Lines</field>
+        <field name="res_model">approval.product.line</field>
+        <field name="view_mode">tree,form</field>
+        <!-- EOI-470: Remove approval on Approval Requests -->
+        <field name="domain">[('approval_request_id.request_owner_id','=',uid),('approval_request_id.request_status','=','new')]</field>
+        <field name="context">{'create': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Approvals Requests
+            </p>
+            <p>
+                Let's go to the <a type="action" class="text-primary" name="%(approvals.approval_category_action_new_request)d">new request</a> menu
+            </p>
+        </field>
+    </record>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Requester Lines Waiting Menu -->
+    <menuitem id="purchase_menu_request_rl_waiting" 
+        name="Waiting"
+        parent="requester_lines_category" 
+        sequence="3"
+        action="purchase_action_request_rl_waiting"/>
+    
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Requester Lines Completed Action -->
+    <record id="approval_request_action_rl_completed" model="ir.actions.act_window">
+        <field name="name">Completed Request Lines</field>
+        <field name="res_model">approval.product.line</field>
+        <field name="view_mode">tree,form</field>
+        <!-- EOI-470: Remove approval on Approval Requests -->
+        <field name="domain">[('approval_request_id.request_owner_id','=',uid),('approval_request_id.request_status','=','pending')]</field>
+        <field name="context">{'create': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Approvals Requests
+            </p>
+            <p>
+                Let's go to the <a type="action" class="text-primary" name="%(approvals.approval_category_action_new_request)d">new request</a> menu
+            </p>
+        </field>
+    </record>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Requester Lines Completed Menu -->
+    <menuitem id="purchase_menu_request_rl_completed" 
+        name="Completed"
+        parent="requester_lines_category" 
+        sequence="4"
+        action="approval_request_action_rl_completed"/>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Requester Lines Canceled Action -->
+    <record id="approval_request_action_rl_canceled" model="ir.actions.act_window">
+        <field name="name">Canceled Request Lines</field>
+        <field name="res_model">approval.product.line</field>
+        <field name="view_mode">tree,form</field>
+        <!-- EOI-470: Remove approval on Approval Requests -->
+        <field name="domain">[('approval_request_id.request_owner_id','=',uid),('approval_request_id.request_status','=','cancel')]</field>
+        <field name="context">{'create': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Approvals Requests
+            </p>
+            <p>
+                Let's go to the <a type="action" class="text-primary" name="%(approvals.approval_category_action_new_request)d">new request</a> menu
+            </p>
+        </field>
+    </record>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Requester Lines Cancelled Menu -->
+    <menuitem id="purchase_menu_request_rl_canceled" 
+        name="Canceled"
+        parent="requester_lines_category" 
+        sequence="4"
+        action="approval_request_action_rl_canceled"/>
+    
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Buyer Queue Category -->
+    <menuitem
+        id="buyer_queue_category"
+        name="Buyer Queue"
+        parent="requests_menu"
+        sequence="3"/>
+
+    <!-- Buyer Queue Waiting Action -->
+    <!-- EOI-411: Fix approval menus and views -->
+    <record id="purchase_action_request_bq_waiting" model="ir.actions.act_window">
+        <field name="name">Waiting Buyer Queue</field>
+        <field name="res_model">approval.product.line</field>
+        <field name="view_mode">tree,form</field>
+        <!-- EOI-470: Remove approval on Approval Requests -->
+        <field name="domain">[('buyer_id','=',uid),('approval_request_id.request_status','=','new')]</field>
+        <field name="context">{'create': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Approvals Requests
+            </p>
+            <p>
+                Let's go to the <a type="action" class="text-primary" name="%(approvals.approval_category_action_new_request)d">new request</a> menu
+            </p>
+        </field>
+    </record>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Buyer Queue Waiting Menu -->
+    <menuitem id="purchase_menu_request_bq_waiting" 
+        name="Waiting"
+        parent="buyer_queue_category" 
+        sequence="3"
+        action="purchase_action_request_bq_waiting"/>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Buyer Queue Completed Action -->
+    <record id="approval_request_action_bq_completed" model="ir.actions.act_window">
+        <field name="name">Completed Buyer Queue</field>
+        <field name="res_model">approval.product.line</field>
+        <field name="view_mode">tree,form</field>
+        <!-- EOI-470: Remove approval on Approval Requests -->
+        <field name="domain">[('buyer_id','=',uid),('approval_request_id.request_status','=','pending')]</field>
+        <field name="context">{'create': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Approvals Requests
+            </p>
+            <p>
+                Let's go to the <a type="action" class="text-primary" name="%(approvals.approval_category_action_new_request)d">new request</a> menu
+            </p>
+        </field>
+    </record>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Buyer Queue Completed Menu -->
+    <menuitem id="purchase_menu_request_bq_completed" 
+        name="Completed"
+        parent="buyer_queue_category" 
+        sequence="4"
+        action="approval_request_action_bq_completed"/>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Buyer Queue Canceled Action -->
+    <record id="approval_request_action_bq_canceled" model="ir.actions.act_window">
+        <field name="name">Canceled Buyer Queue</field>
+        <field name="res_model">approval.product.line</field>
+        <field name="view_mode">tree,form</field>
+        <!-- EOI-470: Remove approval on Approval Requests -->
+        <field name="domain">[('buyer_id','=',uid),('approval_request_id.request_status', '=', 'cancel')]</field>
+        <field name="context">{'create': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Approvals Requests
+            </p>
+            <p>
+                Let's go to the <a type="action" class="text-primary" name="%(approvals.approval_category_action_new_request)d">new request</a> menu
+            </p>
+        </field>
+    </record>
+
+    <!-- EOI-411: Fix approval menus and views -->
+    <!-- Buyer Queue Cancelled Menu -->
+    <menuitem id="purchase_menu_request_bq_canceled" 
+        name="Canceled"
+        parent="buyer_queue_category" 
+        sequence="4"
+        action="approval_request_action_bq_canceled"/>
+
+</odoo>
